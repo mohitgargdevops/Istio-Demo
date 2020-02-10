@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo1
+  template:
+    metadata:
+      labels:
+        app: demo1
+        version: v2
+    spec:
+      containers:
+      - name: demo1
+        image: gcr.io/k8-istio-266003/istioapp1-v2
+        env:
+        - name: VAR1
+          value: "http://demo4:8080"
+        ports:
+        - name: http
+          containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo4
+  template:
+    metadata:
+      labels:
+        app: demo4
+        version: v1
+    spec:
+      containers:
+      - name: demo4
+        image: gcr.io/k8-istio-266003/istioapp2-v1
+        env:
+        - name: VAR1
+          value: istiov2
+        ports:
+        - name: http
+          containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo4 
+  labels:
+    app: demo4
+spec:
+  selector:
+    app: demo4
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
